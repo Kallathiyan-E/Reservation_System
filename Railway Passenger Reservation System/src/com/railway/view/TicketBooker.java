@@ -7,15 +7,16 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import com.railway.entity.Passenger;
+import com.railway.entity.TicketData;
 import com.railway.utility.TrainFacilities;
 
 public class TicketBooker {
 	private final Scanner scan = new Scanner(System.in);
 	int bookingLimit = 6;
 	public TicketBooker() throws InputMismatchException,ParseException {
-		System.out.print("Date (yyyy/mm/dd) :");
+		System.out.print("Date (yyyy-mm-dd) :");
 		String date = scan.next();
-		LocalDate journeyDate = LocalDate.parse(date,DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+		LocalDate journeyDate = LocalDate.parse(date,DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 		int sourceStationChoice;
 		int destinationStationChoice = 0;
 		char sourceStation;
@@ -24,8 +25,6 @@ public class TicketBooker {
 		do {
 			System.out.print("Source Station :\n1->A\n2->B\n3->C\n4->D ");
 			sourceStationChoice = scan.nextInt();
-			sourceStationChoice+=64;
-			sourceStation = (char) sourceStationChoice;
 			if(sourceStationChoice>=5 && sourceStationChoice<=0)
 				System.out.println("Enter a Valid Station");
 		}while(sourceStationChoice>=5 && sourceStationChoice<=0);
@@ -52,6 +51,8 @@ public class TicketBooker {
 		break;
 		default:System.out.println("Enter Valid Station");
 		}
+		sourceStationChoice+=64;
+		sourceStation = (char) sourceStationChoice;
 		int numberOfPassenger ;
 		boolean validity ;
 		do {
@@ -66,11 +67,19 @@ public class TicketBooker {
 		int k=0;
 		for(int passengerInfo=0;passengerInfo<numberOfPassenger;passengerInfo++) {
 			System.out.println("Enter name of the Passenger :");
-			String passengerName = scan.nextLine();
+			String passengerName = scan.next();
 			Passenger newPassenger = new Passenger(passengerName,sourceStation,destinationStation,
 					destinationStationChoice-sourceStationChoice,journeyDate,0);
 			passengerList[k++] = newPassenger;
 		}
-		new TrainFacilities().bookTicket(passengerList);
+		TicketData passengerTicket =new TrainFacilities().bookTicket(passengerList);
+		System.out.println("Date :"+journeyDate.toString()+"\nPNR No. :"+passengerTicket.getPNR()
+		+"\nBooking Status :"+passengerTicket.getBookingStatus()+"\nSource station & Destintion Station :"
+		+passengerTicket.getPassengerDetails()[0].getSourceStation()+"&"
+		+passengerTicket.getPassengerDetails()[0].getDestinationStation());
+		System.out.println("Passenger_Name\tSeats_Allocated");
+		for(Passenger passengerTicketDetails:passengerTicket.getPassengerDetails()) {
+			System.out.println(passengerTicketDetails.getName()+"\t\t"+passengerTicketDetails.getSeatNumber());
+		}
 	}
 }
